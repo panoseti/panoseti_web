@@ -1,0 +1,1 @@
+/home/panosetigraph/dpa/panoseti/web/visual.inc

@@ -1,0 +1,1 @@
+/home/panosetigraph/nrw/panoseti/web/ph_browser.php

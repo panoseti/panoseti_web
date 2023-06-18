@@ -1,0 +1,1 @@
+/home/panosetigraph/dpa/panoseti/web/img_pulse.inc

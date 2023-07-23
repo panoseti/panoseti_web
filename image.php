@@ -53,14 +53,10 @@ function show_ph_frame($data, $arrows, $bytes_pix) {
         echo "<tr>";
         for ($j=0; $j<16; $j++) {
             $v = $data[$i*16+$j];
-            if ($bytes_pix == 2) {
-                $v  >>= 8;
-            }
-            if ($v > 255) $v = 255;
-            $color = sprintf("#%02x%02x%02x", $v, $v, $v);
+            $color = sprintf("#%02x%02x%02x", $v, $v, 255-$v);
             echo sprintf(
                 '<td width=%dpx height=%dpx bgcolor="%s"> </td>',
-                16, 16, $color
+                32, 32, $color
             );
         }
         echo "</tr>\n";
@@ -126,20 +122,33 @@ function main($vol, $run, $file, $frame) {
     $f = fopen($path, "r");
     $hs = header_size($f);
     $t = $frame/200.;
-    echo "<p>Frame: $frame ($t sec)\n";
     // head size is 492 or 124.
     // when it's 492, the acq mode is img16, img8 or ph1024;
     // when it's 124, the acq mode ph256. 
     if($hs == 492)
     {
+        echo "<p>Frame: $frame ($t sec)\n";
         $x = get_frame($f, $hs, $frame, $bytes_pix);
         $as = arrows_str($vol, $run, $file, $usecs, $frame);
         show_frame($x, $as, $bytes_pix);
     }else
     {
-        $x = get_ph_frame($f, $hs, $frame, 2);
+        echo "<p>Frame: $frame \n";
+        $x = get_ph_frame($f, $hs, $frame, $bytes_pix);
         $as = arrows_str($vol, $run, $file, $usecs, $frame);
-        show_ph_frame($x, $as, 2);
+        // ph data value could be negative. 
+        // adjust the data range, making the value range from 0-255.
+        $min_x = min($x);
+        $i = 0;
+        for($i=0;$i<256; $i++){
+            $x[$i] -= $min_x;
+        }
+        $max_x = max($x);
+        for($i=0;$i<256; $i++){
+            if($max_x != 0)
+                $x[$i] = (int)($x[$i]*255/$max_x);
+        }
+        show_ph_frame($x, $as, $bytes_pix);
     }
     page_tail();
 }

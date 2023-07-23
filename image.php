@@ -93,7 +93,7 @@ function get_frame($f, $hs, $frame, $bytes_pix) {
 }
 
 function get_ph_frame($f, $hs, $frame, $bytes_pix) {
-    $frame_size = $hs + 1024*$bytes_pix;
+    $frame_size = $hs + 256*$bytes_pix;
     $offset = $frame*$frame_size + $hs;
     if (fseek($f, $offset) < 0) {
         die("no such frame");
@@ -137,9 +137,9 @@ function main($vol, $run, $file, $frame) {
         show_frame($x, $as, $bytes_pix);
     }else
     {
-        $x = get_ph_frame($f, $hs, $frame, $bytes_pix);
+        $x = get_ph_frame($f, $hs, $frame, 2);
         $as = arrows_str($vol, $run, $file, $usecs, $frame);
-        show_ph_frame($x, $as, $bytes_pix);
+        show_ph_frame($x, $as, 2);
     }
     page_tail();
 }

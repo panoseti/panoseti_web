@@ -47,6 +47,28 @@ function show_frame($data, $arrows, $bytes_pix) {
     echo "</table>";
 }
 
+function show_ph_frame($data, $arrows, $bytes_pix) {
+    echo "<table>";
+    for ($i=0; $i<16; $i++) {
+        echo "<tr>";
+        for ($j=0; $j<16; $j++) {
+            $v = $data[$i*16+$j];
+            if ($bytes_pix == 2) {
+                $v  >>= 8;
+            }
+            if ($v > 255) $v = 255;
+            $color = sprintf("#%02x%02x%02x", $v, $v, $v);
+            echo sprintf(
+                '<td width=%dpx height=%dpx bgcolor="%s"> </td>',
+                16, 16, $color
+            );
+        }
+        echo "</tr>\n";
+    }
+    echo "<tr><td colspan=32 align=center><br>$arrows</td></tr>\n";
+    echo "</table>";
+}
+
 function get_frame($f, $hs, $frame, $bytes_pix) {
     $frame_size = $hs + 1024*$bytes_pix;
     $offset = $frame*$frame_size + $hs;
@@ -70,6 +92,29 @@ function get_frame($f, $hs, $frame, $bytes_pix) {
     return $y;
 }
 
+function get_ph_frame($f, $hs, $frame, $bytes_pix) {
+    $frame_size = $hs + 1024*$bytes_pix;
+    $offset = $frame*$frame_size + $hs;
+    if (fseek($f, $offset) < 0) {
+        die("no such frame");
+    }
+    $x = fread($f, 256*$bytes_pix);
+    if (strlen($x)==0 ) die("no such frame");
+ 
+    // unpack returns 1-offset array - WTF???
+    // array_merge() changes it to 0-offset
+    //
+    if ($bytes_pix == 1) {
+        $y = array_merge(unpack("c256", $x));
+    } else {
+        $y = array_merge(unpack("s256", $x));
+    }
+    if (!$y) {
+        die("unpack");
+    }
+    return $y;
+}
+
 function main($vol, $run, $file, $frame) {
     $dc = json_decode(file_get_contents("$vol/data/$run/data_config.json"));
     $usecs = $dc->image->integration_time_usec;
@@ -82,9 +127,20 @@ function main($vol, $run, $file, $frame) {
     $hs = header_size($f);
     $t = $frame/200.;
     echo "<p>Frame: $frame ($t sec)\n";
-    $x = get_frame($f, $hs, $frame, $bytes_pix);
-    $as = arrows_str($vol, $run, $file, $usecs, $frame);
-    show_frame($x, $as, $bytes_pix);
+    // head size is 492 or 124.
+    // when it's 492, the acq mode is img16, img8 or ph1024;
+    // when it's 124, the acq mode ph256. 
+    if($hs == 492)
+    {
+        $x = get_frame($f, $hs, $frame, $bytes_pix);
+        $as = arrows_str($vol, $run, $file, $usecs, $frame);
+        show_frame($x, $as, $bytes_pix);
+    }else
+    {
+        $x = get_ph_frame($f, $hs, $frame, $bytes_pix);
+        $as = arrows_str($vol, $run, $file, $usecs, $frame);
+        show_ph_frame($x, $as, $bytes_pix);
+    }
     page_tail();
 }
 

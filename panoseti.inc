@@ -384,7 +384,7 @@ function run_data_products($vol, $name) {
             $x->quabo_sample_size, $x->integration_time_usec
         );
     }
-    if (array_key_exists('pulse_height', $dc)) {
+    if (is_array($dc) && array_key_exists('pulse_height', $dc)) {
         $x = $dc->pulse_height;
         $s[] = sprintf("Pulse height, threshold %d", $x->pe_threshold);
     }

@@ -115,10 +115,11 @@ function main($vol, $run, $file, $frame) {
     $dc = json_decode(file_get_contents("$vol/data/$run/data_config.json"));
     if (isset($dc->image)) {
         $usecs = $dc->image->integration_time_usec;
+        $bytes_pix = $dc->image->quabo_sample_size/8;
     } else {
         $usecs = 1;
+        $bytes_pix = 2;
     }
-    $bytes_pix = $dc->image->quabo_sample_size/8;
     page_head("Image");
     echo "<p>Run: <a href=run.php?vol=$vol&name=$run>$run</a>\n";
     echo "<p>File: <a href=file.php?vol=$vol&run=$run&fname=$file>$file</a>\n";

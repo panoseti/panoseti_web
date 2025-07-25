@@ -113,7 +113,11 @@ function get_ph_frame($f, $hs, $frame, $bytes_pix) {
 
 function main($vol, $run, $file, $frame) {
     $dc = json_decode(file_get_contents("$vol/data/$run/data_config.json"));
-    $usecs = $dc->image->integration_time_usec;
+    if (isset($dc->image)) {
+        $usecs = $dc->image->integration_time_usec;
+    } else {
+        $usecs = 1;
+    }
     $bytes_pix = $dc->image->quabo_sample_size/8;
     page_head("Image");
     echo "<p>Run: <a href=run.php?vol=$vol&name=$run>$run</a>\n";

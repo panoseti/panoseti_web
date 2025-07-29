@@ -55,9 +55,9 @@ function main() {
     echo "
         <h2>Hardware parameter logs (Grafana)</h2>
         <p>
-        <a href=http://visigoth.ucolick.org:3000>View</a>
+        <a href=http://localhost:3000>View</a>
         <br
-        <small>(User: admin; password: visigoth password)</small>
+        <small>(User: admin; password: panoseti-headnode password(all lowercase letters ))</small>
     ";
 
     echo "<h2>Multi-run analysis</h2>";

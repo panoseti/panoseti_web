@@ -324,7 +324,9 @@ function iso_to_dt($x) {
 // local format string to DateTime
 //
 function local_to_dt($x) {
-    return DateTime::createFromFormat('Y-m-d\TH:i:s', $x);
+    return DateTime::createFromFormat('Y-m-d\TH:i:s', $x,
+    new DateTimeZone("America/Los_Angeles")
+    );
 }
 
 // convert DateTime from UTC to local timezone
